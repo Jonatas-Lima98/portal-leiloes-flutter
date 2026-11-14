@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/auth_screens.dart';
 
 void main() => runApp(const LeilaoApp());
 
@@ -78,13 +79,15 @@ class _InicioPageState extends State<InicioPage> {
           if (!formKey.currentState!.validate()) return;
           final valor = double.tryParse(inicial.text.replaceAll(',', '.'));
           final passo = double.tryParse(incremento.text.replaceAll(',', '.'));
-          if (valor == null || passo == null || valor <= 0 || passo <= 0) {
-            ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('Informe valores positivos válidos.')));
+          if (valor == null || passo == null || valor <= 0 || passo <= 0 || !valor.isFinite || !passo.isFinite) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Informe valores positivos válidos.')));
             return;
           }
           Navigator.pop(ctx, Lote(titulo: titulo.text.trim(), descricao: descricao.text.trim(), inicial: valor, incremento: passo, retirada: retirada.text.trim(), fim: DateTime.now().add(const Duration(days: 7)), situacao: Situacao.aberto));
         }, child: const Text('Salvar'))],
     ));
+    // Os controllers são descartados após o fechamento da rota do diálogo.
+    await Future<void>.delayed(const Duration(milliseconds: 200));
     titulo.dispose(); descricao.dispose(); inicial.dispose(); incremento.dispose(); retirada.dispose();
     if (criado != null && mounted) setState(() { lotes.add(criado); aba = 0; filtro = null; });
   }
@@ -98,7 +101,17 @@ class _InicioPageState extends State<InicioPage> {
   Widget build(BuildContext context) {
     final visiveis = lotes.where((l) => filtro == null || l.situacao == filtro).toList();
     return Scaffold(
-      appBar: AppBar(title: const Text('Portal de Leilões'), backgroundColor: Theme.of(context).colorScheme.primaryContainer),
+      appBar: AppBar(
+        title: const Text('Portal de Leilões'),
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const LoginScreen())),
+            icon: const Icon(Icons.login), label: const Text('Entrar'),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1100), child: Padding(
         padding: const EdgeInsets.all(20), child: aba == 0 ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Explore os leilões', style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold)),
