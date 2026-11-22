@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/auth_screens.dart';
 
-void main() => runApp(const LeilaoApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: 'https://flcxrkcvzzxvysgopdzu.supabase.co',
+    publishableKey: 'sb_publishable_F_R7CQfIfzyRIi3OgIbs2g_MuojG-WM',
+  );
+
+  runApp(const LeilaoApp());
+}
 
 enum Situacao { aberto, andamento, encerrado }
 
